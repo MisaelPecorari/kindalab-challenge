@@ -36,4 +36,12 @@ public class PublicElevatorTest {
         Assertions.assertThrows(WeightExceededException.class, () ->elevator.goTo(25, 5000, false));
     }
 
+    @Test
+    void givenNotExistentFloor_andKeyCard_whenGoTo_thenThrowException() {
+        Elevator elevator = new PublicElevator(-1, 50);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> elevator.goTo(-2, 500, true));
+        Assertions.assertThrows(IllegalArgumentException.class, () ->elevator.goTo(51, 500, true));
+    }
+
+
 }

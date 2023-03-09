@@ -19,6 +19,7 @@ public abstract class Elevator {
 
     public boolean goTo(int floor, int weightInKilos, boolean keyCard) {
         validateWeight(weightInKilos);
+        validateFloorsRange(floor);
         boolean canGo = canGoToFloor(floor, keyCard);
         if (canGo) this.currentFloor = floor;
         return canGo;
@@ -30,6 +31,10 @@ public abstract class Elevator {
 
     protected void validateWeight(int weightInKilos) {
         if (weightInKilos > getMaxWeightSupportedInKilos()) throw new WeightExceededException();
+    }
+
+    protected void validateFloorsRange(int floor) {
+        if (floor < minFloor || floor > maxFloor) throw new IllegalArgumentException("Floor should be within " + minFloor + " and " + maxFloor);
     }
 
     public void call(int floor) {
