@@ -1,0 +1,32 @@
+package com.example.kindalabchallenge;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+public class FreightElevatorTest {
+
+    @Test
+    void givenAnyFloor_andWeightNoExceeded_whenGoTo_thenSucceed() {
+        Elevator elevator = new FreightElevator(-1, 50);
+        Assertions.assertTrue(elevator.goTo(-1, 500, false));
+        Assertions.assertTrue(elevator.goTo(10, 200, false));
+        Assertions.assertTrue(elevator.goTo(25, 1, false));
+        Assertions.assertTrue(elevator.goTo(34, 0, false));
+        Assertions.assertTrue(elevator.goTo(50, 999, false));
+    }
+
+    @Test
+    void givenBasementOrFloor50_andWeightNoExceeded_whenGoTo_thenSucceed() {
+        Elevator elevator = new FreightElevator(-1, 50);
+        Assertions.assertTrue(elevator.goTo(-1, 500, true));
+        Assertions.assertTrue(elevator.goTo(50, 500, true));
+    }
+
+    @Test
+    void givenAnyFloor_andWeightExceeded_whenGoTo_thenThrowException() {
+        Elevator elevator = new FreightElevator(-1, 50);
+        Assertions.assertThrows(WeightExceededException.class, () -> elevator.goTo(25, 3001, false));
+        Assertions.assertThrows(WeightExceededException.class, () ->elevator.goTo(25, 15000, false));
+    }
+
+}
