@@ -13,7 +13,7 @@ public class PublicElevator extends Elevator {
 
     @Override
     protected boolean canGoToFloor(int floor, boolean keyCard) {
-        return (floor >= 0 || keyCard) && (floor <= 49 || keyCard);
+        return (floor > getMinFloor() || keyCard) && (floor < getMaxFloor() || keyCard);
     }
 
 }
