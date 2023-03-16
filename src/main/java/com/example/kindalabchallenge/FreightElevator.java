@@ -1,10 +1,18 @@
 package com.example.kindalabchallenge;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FreightElevator extends Elevator {
 
-    public FreightElevator(int minFloor, int maxFloor) {
-        super(minFloor, maxFloor);
+    private static Elevator instance;
+
+    public static Elevator getInstance() {
+        if (instance == null) {
+            instance = new FreightElevator();
+        }
+        return instance;
     }
 
     @Override
