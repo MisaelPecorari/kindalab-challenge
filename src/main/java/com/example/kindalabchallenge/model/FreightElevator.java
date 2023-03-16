@@ -1,4 +1,4 @@
-package com.example.kindalabchallenge;
+package com.example.kindalabchallenge.model;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ public class FreightElevator extends Elevator {
     }
 
     @Override
-    protected boolean canGoToFloor(int floor, boolean keyCard) {
-        return true;
+    protected void validateAccess(int floor, KeyCard keyCard) {
+        //everybody has access
     }
 }

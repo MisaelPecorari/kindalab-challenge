@@ -1,5 +1,9 @@
-package com.example.kindalabchallenge;
+package com.example.kindalabchallenge.model;
 
+import com.example.kindalabchallenge.exception.AccessDeniedException;
+import com.example.kindalabchallenge.exception.InvalidFloorException;
+import com.example.kindalabchallenge.exception.ValidationException;
+import com.example.kindalabchallenge.exception.WeightExceededException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +27,7 @@ public abstract class Elevator {
     private final List<Integer> visitedFloors;
     @Setter
     private Thread requestProcessorThread;
-    private boolean isUpwards;
+    private Direction direction;
     @Setter
     private int delay;
 
@@ -33,28 +37,28 @@ public abstract class Elevator {
         this.currentFloor = 0;
         this.floorsToVisit = new TreeSet<>();
         this.visitedFloors = new ArrayList<>();
-        this.isUpwards = true;
+        this.direction = Direction.UPWARDS;
         this.delay = 750;
     }
 
-    public boolean goTo(int floor, int weightInKilos, boolean keyCard) {
+    public boolean goTo(int floor, int weightInKilos, KeyCard keyCard) {
         validateWeight(weightInKilos);
         validateFloorsRange(floor);
-        boolean canGo = canGoToFloor(floor, keyCard);
-        if (canGo) call(floor);
-        return canGo;
+        validateAccess(floor, keyCard);
+        call(floor);
+        return true;
     }
 
     protected abstract int getMaxWeightSupportedInKilos();
 
-    protected abstract boolean canGoToFloor(int floor, boolean keyCard);
+    protected abstract void validateAccess(int floor, KeyCard keyCard) throws AccessDeniedException;
 
-    protected void validateWeight(int weightInKilos) {
+    private void validateWeight(int weightInKilos) {
         if (weightInKilos > getMaxWeightSupportedInKilos()) throw new WeightExceededException();
     }
 
-    protected void validateFloorsRange(int floor) {
-        if (floor < this.minFloor || floor > this.maxFloor) throw new IllegalArgumentException("Floor should be within " + this.minFloor + " and " + this.maxFloor);
+    private void validateFloorsRange(int floor) {
+        if (floor < this.minFloor || floor > this.maxFloor) throw new InvalidFloorException();
     }
 
     public synchronized void call(int floor) {
@@ -94,7 +98,7 @@ public abstract class Elevator {
     }
 
     private Integer calculateNext() {
-        Integer nextFloor = this.isUpwards ? nextFloorUpwards() : nextFloorDownwards();
+        Integer nextFloor = this.direction == Direction.UPWARDS ? nextFloorUpwards() : nextFloorDownwards();
         if (nextFloor != null) floorsToVisit.remove(nextFloor);
         return nextFloor;
     }
@@ -103,7 +107,7 @@ public abstract class Elevator {
         Integer nextFloor = this.floorsToVisit.ceiling(this.currentFloor);
         if (nextFloor == null) {
             nextFloor = this.floorsToVisit.floor(this.currentFloor);
-            this.isUpwards = false;
+            this.direction = Direction.DOWNWARDS;
         }
         return nextFloor;
     }
@@ -112,7 +116,7 @@ public abstract class Elevator {
         Integer nextFloor = this.floorsToVisit.floor(this.currentFloor);
         if (nextFloor == null) {
             nextFloor = this.floorsToVisit.ceiling(this.currentFloor);
-            this.isUpwards = true;
+            this.direction = Direction.UPWARDS;
         }
         return nextFloor;
     }
@@ -120,6 +124,10 @@ public abstract class Elevator {
     private int calculateDelayInMillis(int nextFloor) {
         int difference = Math.abs(this.currentFloor - nextFloor);
         return difference * this.delay;
+    }
+
+    private enum Direction {
+        UPWARDS, DOWNWARDS
     }
 
 }

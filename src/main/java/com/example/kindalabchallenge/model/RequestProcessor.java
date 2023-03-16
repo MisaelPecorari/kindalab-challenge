@@ -1,4 +1,4 @@
-package com.example.kindalabchallenge;
+package com.example.kindalabchallenge.model;
 
 import lombok.extern.slf4j.Slf4j;
 

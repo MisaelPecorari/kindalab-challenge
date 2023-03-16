@@ -1,5 +1,6 @@
-package com.example.kindalabchallenge;
+package com.example.kindalabchallenge.model;
 
+import com.example.kindalabchallenge.exception.AccessDeniedException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -22,8 +23,9 @@ public class PublicElevator extends Elevator {
     }
 
     @Override
-    protected boolean canGoToFloor(int floor, boolean keyCard) {
-        return (floor > getMinFloor() || keyCard) && (floor < getMaxFloor() || keyCard);
+    protected void validateAccess(int floor, KeyCard keyCard) {
+        boolean doesNotHaveAccess = floor <= getMinFloor() && keyCard.isNotAdmin() || floor >= getMaxFloor() && keyCard.isNotAdmin();
+        if (doesNotHaveAccess) throw new AccessDeniedException();
     }
 
 }

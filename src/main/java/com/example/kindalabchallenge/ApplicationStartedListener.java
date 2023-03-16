@@ -1,5 +1,9 @@
 package com.example.kindalabchallenge;
 
+import com.example.kindalabchallenge.model.Elevator;
+import com.example.kindalabchallenge.model.FreightElevator;
+import com.example.kindalabchallenge.model.PublicElevator;
+import com.example.kindalabchallenge.model.RequestProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
