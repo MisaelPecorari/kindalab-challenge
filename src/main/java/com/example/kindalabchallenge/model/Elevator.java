@@ -2,7 +2,6 @@ package com.example.kindalabchallenge.model;
 
 import com.example.kindalabchallenge.exception.AccessDeniedException;
 import com.example.kindalabchallenge.exception.InvalidFloorException;
-import com.example.kindalabchallenge.exception.ValidationException;
 import com.example.kindalabchallenge.exception.WeightExceededException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,12 +40,11 @@ public abstract class Elevator {
         this.delay = 750;
     }
 
-    public boolean goTo(int floor, int weightInKilos, KeyCard keyCard) {
+    public void goTo(int floor, int weightInKilos, KeyCard keyCard) {
         validateWeight(weightInKilos);
         validateFloorsRange(floor);
         validateAccess(floor, keyCard);
         call(floor);
-        return true;
     }
 
     protected abstract int getMaxWeightSupportedInKilos();
