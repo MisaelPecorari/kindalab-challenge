@@ -24,4 +24,9 @@ public class FreightElevator extends Elevator {
     protected void validateAccess(int floor, KeyCard keyCard) {
         //everybody has access
     }
+
+    @Override
+    public String getName() {
+        return "freight";
+    }
 }

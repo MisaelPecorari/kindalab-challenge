@@ -12,12 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-@Getter(value = AccessLevel.PROTECTED)
+@Getter
 @Slf4j
 public abstract class Elevator implements Runnable {
-
-    private static final int MIN_FLOOR = -1;
-    private static final int MAX_FLOOR = 50;
 
     private final int minFloor;
     private final int maxFloor;
@@ -31,8 +28,8 @@ public abstract class Elevator implements Runnable {
     private int delay;
 
     protected Elevator() {
-        this.minFloor = MIN_FLOOR;
-        this.maxFloor = MAX_FLOOR;
+        this.minFloor = -1;
+        this.maxFloor = 50;
         this.currentFloor = 0;
         this.floorsToVisit = new TreeSet<>();
         this.visitedFloors = new ArrayList<>();
@@ -42,7 +39,6 @@ public abstract class Elevator implements Runnable {
 
     public void goTo(int floor, int weightInKilos, KeyCard keyCard) {
         validateWeight(weightInKilos);
-        validateFloorsRange(floor);
         validateAccess(floor, keyCard);
         call(floor);
     }
@@ -55,11 +51,12 @@ public abstract class Elevator implements Runnable {
         if (weightInKilos > getMaxWeightSupportedInKilos()) throw new WeightExceededException();
     }
 
-    private void validateFloorsRange(int floor) {
+    private void validateFloor(int floor) {
         if (floor < this.minFloor || floor > this.maxFloor) throw new InvalidFloorException();
     }
 
     public synchronized void call(int floor) {
+        validateFloor(floor);
         if (floor == this.currentFloor) return;
         boolean added = floorsToVisit.add(floor);
         if (added) {
@@ -128,6 +125,8 @@ public abstract class Elevator implements Runnable {
         UPWARDS, DOWNWARDS
     }
 
+    public abstract String getName();
+
     @Override
     public void run() {
         while (true) {
@@ -138,7 +137,7 @@ public abstract class Elevator implements Runnable {
                     move(nextFloor);
                 }
             } catch (InterruptedException e) {
-                if(this.currentFloor != nextFloor) {
+                if (this.currentFloor != nextFloor) {
                     floorsToVisit.add(nextFloor);
                 }
             }

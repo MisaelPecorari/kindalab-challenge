@@ -28,4 +28,9 @@ public class PublicElevator extends Elevator {
         if (doesNotHaveAccess) throw new AccessDeniedException();
     }
 
+    @Override
+    public String getName() {
+        return "public";
+    }
+
 }

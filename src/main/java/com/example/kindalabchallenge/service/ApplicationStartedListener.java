@@ -1,4 +1,4 @@
-package com.example.kindalabchallenge;
+package com.example.kindalabchallenge.service;
 
 import com.example.kindalabchallenge.model.FreightElevator;
 import com.example.kindalabchallenge.model.PublicElevator;

@@ -2,12 +2,9 @@ package com.example.kindalabchallenge.exception;
 
 public class WeightExceededException extends ValidationException {
 
-    public WeightExceededException() {
-        super();
-    }
+    private static final String MESSAGE = "Weight limit exceeded. Elevator stopped";
 
-    @Override
-    protected String getValidationMessage() {
-        return "Weight limit exceeded. Elevator stopped";
+    public WeightExceededException() {
+        super(MESSAGE);
     }
 }

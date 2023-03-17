@@ -2,12 +2,10 @@ package com.example.kindalabchallenge.exception;
 
 public class AccessDeniedException extends ValidationException {
 
+    private static final String MESSAGE = "Access denied";
+
     public AccessDeniedException() {
-        super();
+        super(MESSAGE);
     }
 
-    @Override
-    protected String getValidationMessage() {
-        return "Access denied";
-    }
 }

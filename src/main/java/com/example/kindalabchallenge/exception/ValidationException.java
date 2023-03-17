@@ -5,9 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class ValidationException extends RuntimeException {
 
-    public ValidationException() {
-        log.warn(getValidationMessage());
+    public ValidationException(String message) {
+        super(message);
+        log.warn(message);
     }
-
-    protected abstract String getValidationMessage();
 }

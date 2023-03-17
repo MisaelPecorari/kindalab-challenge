@@ -24,3 +24,8 @@ PublicElevatorTest#givenBasementOrFloor50_andWeightNoExceeded_andKeyCard_whenGoT
 PublicElevatorTest#givenAnyFloor_andWeightExceeded_andNoKeyCard_whenGoTo_thenThrowException
 PublicElevatorTest#givenNotExistentFloor_andKeyCard_whenGoTo_thenThrowException
 ```
+
+
+`curl -X POST -H "Content-Type: application/json" -d '{"floor":5, "weightInKilos":350, "keyCard": "ADMIN"}' http://localhost:8080/elevators/freight/go-to`
+`curl -X POST -H "Content-Type: application/json" http://localhost:8080/elevators/public/call/5`
+`curl http://localhost:8080/elevators/public/current-floor`
