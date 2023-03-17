@@ -19,24 +19,17 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     }
 
     private void initiateElevators() {
-        getPublicElevatorThread().start();
-        getFreightElevatorThread().start();
+        Thread publicElevatorThread = createElevatorThread(PublicElevator.getInstance(), "PublicElevatorThread");
+        Thread freightElevatorThread = createElevatorThread(FreightElevator.getInstance(), "FreightElevatorThread");
+        publicElevatorThread.start();
+        freightElevatorThread.start();
     }
 
-    private Thread getPublicElevatorThread() {
-        Elevator publicElevator = PublicElevator.getInstance();
-        RequestProcessor requestProcessor = new RequestProcessor(publicElevator);
-        Thread thread = new Thread(requestProcessor, "PublicElevatorThread");
-        publicElevator.setRequestProcessorThread(thread);
+    private Thread createElevatorThread(Elevator elevator, String threadName) {
+        RequestProcessor requestProcessor = new RequestProcessor(elevator);
+        Thread thread = new Thread(requestProcessor, threadName);
+        elevator.setRequestProcessorThread(thread);
         return thread;
     }
 
-    private Thread getFreightElevatorThread() {
-        Elevator freightElevator = FreightElevator.getInstance();
-        RequestProcessor requestProcessor = new RequestProcessor(freightElevator);
-        Thread thread = new Thread(requestProcessor, "FreightElevatorThread");
-        freightElevator.setRequestProcessorThread(thread);
-        return thread;
-
-    }
 }
