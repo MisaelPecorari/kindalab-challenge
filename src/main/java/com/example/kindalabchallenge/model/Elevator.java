@@ -14,7 +14,7 @@ import java.util.TreeSet;
 
 @Getter(value = AccessLevel.PROTECTED)
 @Slf4j
-public abstract class Elevator {
+public abstract class Elevator implements Runnable {
 
     private static final int MIN_FLOOR = -1;
     private static final int MAX_FLOOR = 50;
@@ -24,10 +24,10 @@ public abstract class Elevator {
     private int currentFloor;
     private final TreeSet<Integer> floorsToVisit;
     private final List<Integer> visitedFloors;
-    @Setter
+    @Setter(value = AccessLevel.PROTECTED)
     private Thread requestProcessorThread;
     private Direction direction;
-    @Setter
+    @Setter(value = AccessLevel.PROTECTED)
     private int delay;
 
     protected Elevator() {
@@ -126,6 +126,23 @@ public abstract class Elevator {
 
     private enum Direction {
         UPWARDS, DOWNWARDS
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            this.requestProcessorThread = Thread.currentThread();
+            Integer nextFloor = nextFloor();
+            try {
+                if (nextFloor != this.currentFloor) {
+                    move(nextFloor);
+                }
+            } catch (InterruptedException e) {
+                if(this.currentFloor != nextFloor) {
+                    floorsToVisit.add(nextFloor);
+                }
+            }
+        }
     }
 
 }

@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.Duration;
-
 @SpringBootTest
 public class ElevatorTest {
 
@@ -22,7 +20,7 @@ public class ElevatorTest {
         elevator.call(5);
         elevator.call(20);
 
-        Awaitility.await().pollDelay(Duration.ofMillis(delayInMillis)).until(() -> {
+        Awaitility.await().until(() -> {
             if (elevator.getCurrentFloor() == 5) {
                 elevator.goTo(2, 500, keyCard);
                 elevator.goTo(25, 500, keyCard);
@@ -31,7 +29,7 @@ public class ElevatorTest {
             return false;
         });
 
-        Awaitility.await().pollDelay(Duration.ofMillis(delayInMillis)).until(() -> {
+        Awaitility.await().until(() -> {
             if (elevator.getCurrentFloor() == 25) {
                 elevator.goTo(13, 500, keyCard);
                 elevator.goTo(46, 500, keyCard);

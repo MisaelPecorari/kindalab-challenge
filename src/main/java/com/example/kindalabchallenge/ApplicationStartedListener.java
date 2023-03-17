@@ -1,13 +1,14 @@
 package com.example.kindalabchallenge;
 
-import com.example.kindalabchallenge.model.Elevator;
 import com.example.kindalabchallenge.model.FreightElevator;
 import com.example.kindalabchallenge.model.PublicElevator;
-import com.example.kindalabchallenge.model.RequestProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 @Slf4j
@@ -19,17 +20,9 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     }
 
     private void initiateElevators() {
-        Thread publicElevatorThread = createElevatorThread(PublicElevator.getInstance(), "PublicElevatorThread");
-        Thread freightElevatorThread = createElevatorThread(FreightElevator.getInstance(), "FreightElevatorThread");
-        publicElevatorThread.start();
-        freightElevatorThread.start();
-    }
-
-    private Thread createElevatorThread(Elevator elevator, String threadName) {
-        RequestProcessor requestProcessor = new RequestProcessor(elevator);
-        Thread thread = new Thread(requestProcessor, threadName);
-        elevator.setRequestProcessorThread(thread);
-        return thread;
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        executorService.submit(PublicElevator.getInstance());
+        executorService.submit(FreightElevator.getInstance());
     }
 
 }
