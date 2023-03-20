@@ -5,12 +5,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Duration;
+
 @SpringBootTest
 public class ElevatorTest {
 
     @Test
     public void givenCallFromDifferentFloors_andGoToDifferentFloors_whenSchedule_thenSuccess() {
-        int delayInMillis = 20;
+        int delayInMillis = 10;
+        Awaitility.setDefaultPollInterval(Duration.ofMillis(delayInMillis/2));
         KeyCard keyCard = KeyCard.ADMIN;
         Elevator elevator = PublicElevator.getInstance();
         elevator.setDelay(delayInMillis);
@@ -43,9 +46,9 @@ public class ElevatorTest {
             Assertions.assertEquals(10, elevator.getVisitedFloors().get(1));
             Assertions.assertEquals(20, elevator.getVisitedFloors().get(2));
             Assertions.assertEquals(25, elevator.getVisitedFloors().get(3));
-            Assertions.assertEquals(13, elevator.getVisitedFloors().get(4));
-            Assertions.assertEquals(2, elevator.getVisitedFloors().get(5));
-            Assertions.assertEquals(46, elevator.getVisitedFloors().get(6));
+            Assertions.assertEquals(46, elevator.getVisitedFloors().get(4));
+            Assertions.assertEquals(13, elevator.getVisitedFloors().get(5));
+            Assertions.assertEquals(2, elevator.getVisitedFloors().get(6));
         });
     }
 

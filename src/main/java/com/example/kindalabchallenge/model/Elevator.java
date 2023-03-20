@@ -75,14 +75,6 @@ public abstract class Elevator implements Runnable {
         return nextFloor == null ? this.currentFloor : nextFloor;
     }
 
-    public void move(int nextFloor) throws InterruptedException {
-        log.info("Next floor is [{}]", nextFloor);
-        int delayInMillis = calculateDelayInMillis(nextFloor);
-        Thread.sleep(delayInMillis); //simulates delay
-        this.currentFloor = nextFloor;
-        visitedFloors.add(this.currentFloor);
-    }
-
     private void waitInFloor() {
         log.info("No next floor. Waiting in floor [{}]", this.currentFloor);
         try {
@@ -102,7 +94,6 @@ public abstract class Elevator implements Runnable {
         Integer nextFloor = this.floorsToVisit.ceiling(this.currentFloor);
         if (nextFloor == null) {
             nextFloor = this.floorsToVisit.floor(this.currentFloor);
-            this.direction = Direction.DOWNWARDS;
         }
         return nextFloor;
     }
@@ -111,15 +102,10 @@ public abstract class Elevator implements Runnable {
         Integer nextFloor = this.floorsToVisit.floor(this.currentFloor);
         if (nextFloor == null) {
             nextFloor = this.floorsToVisit.ceiling(this.currentFloor);
-            this.direction = Direction.UPWARDS;
         }
         return nextFloor;
     }
 
-    private int calculateDelayInMillis(int nextFloor) {
-        int difference = Math.abs(this.currentFloor - nextFloor);
-        return difference * this.delay;
-    }
 
     private enum Direction {
         UPWARDS, DOWNWARDS
@@ -133,15 +119,35 @@ public abstract class Elevator implements Runnable {
             this.requestProcessorThread = Thread.currentThread();
             Integer nextFloor = nextFloor();
             try {
-                if (nextFloor != this.currentFloor) {
-                    move(nextFloor);
-                }
+                move(nextFloor);
             } catch (InterruptedException e) {
                 if (this.currentFloor != nextFloor) {
                     floorsToVisit.add(nextFloor);
                 }
             }
         }
+    }
+
+    private void move(int nextFloor) throws InterruptedException {
+        if (this.currentFloor == nextFloor) return;
+        if (nextFloor > this.currentFloor) {
+            while (nextFloor > this.currentFloor) {
+                moveDelta(Direction.UPWARDS, 1);
+            }
+        } else {
+            while (nextFloor < this.currentFloor) {
+                moveDelta(Direction.DOWNWARDS, -1);
+            }
+        }
+        log.info("Floor [{}] served", this.currentFloor);
+        visitedFloors.add(this.currentFloor);
+    }
+
+    private void moveDelta(Direction direction, int delta) throws InterruptedException {
+        Thread.sleep(this.delay);
+        this.direction = direction;
+        this.currentFloor += delta;
+        log.info("The elevator is in floor [{}]", this.currentFloor);
     }
 
 }
