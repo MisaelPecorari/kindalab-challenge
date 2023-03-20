@@ -16,7 +16,7 @@ public class PublicElevatorTest {
     @BeforeEach
     void init() {
         elevator = PublicElevator.getInstance();
-        elevator.setRequestProcessorThread(Mockito.mock(Thread.class));
+        elevator.setExecutorThread(Mockito.mock(Thread.class));
     }
 
     @Test

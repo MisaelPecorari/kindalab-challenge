@@ -15,7 +15,7 @@ public class FreightElevatorTest {
     @BeforeEach
     void init() {
         elevator = FreightElevator.getInstance();
-        elevator.setRequestProcessorThread(Mockito.mock(Thread.class));
+        elevator.setExecutorThread(Mockito.mock(Thread.class));
     }
 
     @Test

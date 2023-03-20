@@ -22,7 +22,7 @@ public abstract class Elevator implements Runnable {
     private final TreeSet<Integer> floorsToVisit;
     private final List<Integer> visitedFloors;
     @Setter(value = AccessLevel.PROTECTED)
-    private Thread requestProcessorThread;
+    private Thread executorThread;
     private Direction direction;
     @Setter(value = AccessLevel.PROTECTED)
     private int delay;
@@ -61,27 +61,18 @@ public abstract class Elevator implements Runnable {
         boolean added = floorsToVisit.add(floor);
         if (added) {
             log.info("Floor [{}] added to the list", floor);
-            if (requestProcessorThread.getState() == Thread.State.WAITING) {
+            if (executorThread.getState() == Thread.State.WAITING) {
                   notify();
             } else {
-                requestProcessorThread.interrupt();
+                executorThread.interrupt();
             }
         }
     }
 
-    public synchronized Integer nextFloor() {
+    private synchronized Integer nextFloor() {
         Integer nextFloor = calculateNext();
         if (nextFloor == null) waitInFloor();
         return nextFloor == null ? this.currentFloor : nextFloor;
-    }
-
-    private void waitInFloor() {
-        log.info("No next floor. Waiting in floor [{}]", this.currentFloor);
-        try {
-            wait();
-        } catch (InterruptedException e) {
-            log.error("Something happened", e);
-        }
     }
 
     private Integer calculateNext() {
@@ -106,6 +97,14 @@ public abstract class Elevator implements Runnable {
         return nextFloor;
     }
 
+    private void waitInFloor() {
+        log.info("No next floor. Waiting in floor [{}]", this.currentFloor);
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            log.error("Something happened", e);
+        }
+    }
 
     private enum Direction {
         UPWARDS, DOWNWARDS
@@ -116,7 +115,7 @@ public abstract class Elevator implements Runnable {
     @Override
     public void run() {
         while (true) {
-            this.requestProcessorThread = Thread.currentThread();
+            setCurrentThread();
             Integer nextFloor = nextFloor();
             try {
                 move(nextFloor);
@@ -126,6 +125,11 @@ public abstract class Elevator implements Runnable {
                 }
             }
         }
+    }
+
+    private void setCurrentThread() {
+        Thread.currentThread().setName(this.getClass().getSimpleName());
+        this.executorThread = Thread.currentThread();
     }
 
     private void move(int nextFloor) throws InterruptedException {
