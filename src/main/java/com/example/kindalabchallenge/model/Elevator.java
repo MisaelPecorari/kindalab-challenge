@@ -3,7 +3,6 @@ package com.example.kindalabchallenge.model;
 import com.example.kindalabchallenge.exception.AccessDeniedException;
 import com.example.kindalabchallenge.exception.InvalidFloorException;
 import com.example.kindalabchallenge.exception.WeightExceededException;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +20,10 @@ public abstract class Elevator implements Runnable {
     private int currentFloor;
     private final TreeSet<Integer> floorsToVisit;
     private final List<Integer> visitedFloors;
-    @Setter(value = AccessLevel.PROTECTED)
+    @Setter
     private Thread executorThread;
     private Direction direction;
-    @Setter(value = AccessLevel.PROTECTED)
+    @Setter
     private int delay;
 
     protected Elevator() {

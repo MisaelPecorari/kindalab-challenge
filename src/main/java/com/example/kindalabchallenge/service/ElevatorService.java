@@ -3,12 +3,11 @@ package com.example.kindalabchallenge.service;
 import com.example.kindalabchallenge.dto.CallDto;
 import com.example.kindalabchallenge.exception.InvalidElevatorException;
 import com.example.kindalabchallenge.model.Elevator;
-import com.example.kindalabchallenge.model.FreightElevator;
-import com.example.kindalabchallenge.model.PublicElevator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -17,10 +16,9 @@ public class ElevatorService {
 
     private final Map<String, Elevator> elevatorMap;
 
-    public ElevatorService() {
+    public ElevatorService(Set<Elevator> elevators) {
         this.elevatorMap = new ConcurrentHashMap<>();
-        elevatorMap.put(PublicElevator.getInstance().getName(), PublicElevator.getInstance());
-        elevatorMap.put(FreightElevator.getInstance().getName(), FreightElevator.getInstance());
+        elevators.forEach(elevator -> elevatorMap.put(elevator.getName(), elevator));
     }
 
     public void goTo(String elevatorName, CallDto callDto) {

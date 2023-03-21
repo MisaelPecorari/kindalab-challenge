@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/elevators/{elevatorName}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/elevators/{elevatorName}", consumes = MediaType.ALL_VALUE, produces = MediaType.ALL_VALUE)
 @AllArgsConstructor
 public class ElevatorController {
 
@@ -32,9 +32,9 @@ public class ElevatorController {
     }
 
     @GetMapping(path = "/current-floor")
-    public ResponseEntity<Integer> getCurrentFloor(@PathVariable String elevatorName) {
+    public ResponseEntity<String> getCurrentFloor(@PathVariable String elevatorName) {
         int currentFloor = this.elevatorService.getCurrentFloor(elevatorName);
-        return ResponseEntity.ok(currentFloor);
+        return ResponseEntity.ok(String.valueOf(currentFloor));
     }
 
 }
