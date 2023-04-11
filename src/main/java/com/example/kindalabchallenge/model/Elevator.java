@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 @Getter
 @Slf4j
@@ -17,23 +16,19 @@ public abstract class Elevator implements Runnable {
 
     private final int minFloor;
     private final int maxFloor;
-    private int currentFloor;
-    private final TreeSet<Integer> floorsToVisit;
-    private final List<Integer> visitedFloors;
     @Setter
     private Thread executorThread;
-    private Direction direction;
     @Setter
     private int delay;
+    private final ElevatorScheduler scheduler;
+    private final List<Integer> visitedFloors;
 
     protected Elevator() {
         this.minFloor = -1;
         this.maxFloor = 50;
-        this.currentFloor = 0;
-        this.floorsToVisit = new TreeSet<>();
-        this.visitedFloors = new ArrayList<>();
-        this.direction = Direction.UPWARDS;
         this.delay = 750;
+        this.scheduler = new SCANElevatorScheduler();
+        this.visitedFloors = new ArrayList<>();
     }
 
     public void goTo(int floor, int weightInKilos, KeyCard keyCard) {
@@ -56,8 +51,7 @@ public abstract class Elevator implements Runnable {
 
     public synchronized void call(int floor) {
         validateFloor(floor);
-        if (floor == this.currentFloor) return;
-        boolean added = floorsToVisit.add(floor);
+        boolean added = scheduler.add(floor);
         if (added) {
             log.info("Floor [{}] added to the list", floor);
             if (executorThread.getState() == Thread.State.WAITING) {
@@ -68,45 +62,19 @@ public abstract class Elevator implements Runnable {
         }
     }
 
-    private synchronized Integer nextFloor() {
-        Integer nextFloor = calculateNext();
+    private synchronized int nextFloor() {
+        Integer nextFloor = scheduler.getNext();
         if (nextFloor == null) waitInFloor();
-        return nextFloor == null ? this.currentFloor : nextFloor;
-    }
-
-    private Integer calculateNext() {
-        Integer nextFloor = this.direction == Direction.UPWARDS ? nextFloorUpwards() : nextFloorDownwards();
-        if (nextFloor != null) floorsToVisit.remove(nextFloor);
-        return nextFloor;
-    }
-
-    private Integer nextFloorUpwards() {
-        Integer nextFloor = this.floorsToVisit.ceiling(this.currentFloor);
-        if (nextFloor == null) {
-            nextFloor = this.floorsToVisit.floor(this.currentFloor);
-        }
-        return nextFloor;
-    }
-
-    private Integer nextFloorDownwards() {
-        Integer nextFloor = this.floorsToVisit.floor(this.currentFloor);
-        if (nextFloor == null) {
-            nextFloor = this.floorsToVisit.ceiling(this.currentFloor);
-        }
-        return nextFloor;
+        return nextFloor == null ? scheduler.getCurrentFloor() : nextFloor;
     }
 
     private void waitInFloor() {
-        log.info("No next floor. Waiting in floor [{}]", this.currentFloor);
+        log.info("No next floor. Waiting in floor [{}]", scheduler.getCurrentFloor());
         try {
             wait();
         } catch (InterruptedException e) {
             log.error("Something happened", e);
         }
-    }
-
-    private enum Direction {
-        UPWARDS, DOWNWARDS
     }
 
     public abstract String getName();
@@ -115,13 +83,11 @@ public abstract class Elevator implements Runnable {
     public void run() {
         while (true) {
             setCurrentThread();
-            Integer nextFloor = nextFloor();
+            int nextFloor = nextFloor();
             try {
                 move(nextFloor);
             } catch (InterruptedException e) {
-                if (this.currentFloor != nextFloor) {
-                    floorsToVisit.add(nextFloor);
-                }
+                scheduler.add(nextFloor);
             }
         }
     }
@@ -132,25 +98,27 @@ public abstract class Elevator implements Runnable {
     }
 
     private void move(int nextFloor) throws InterruptedException {
-        if (this.currentFloor == nextFloor) return;
-        if (nextFloor > this.currentFloor) {
-            while (nextFloor > this.currentFloor) {
-                moveDelta(Direction.UPWARDS, 1);
+        if (this.scheduler.getCurrentFloor() == nextFloor) return;
+        if (nextFloor > getCurrentFloor()) {
+            while (nextFloor > getCurrentFloor()) {
+                moveDelta(1);
             }
         } else {
-            while (nextFloor < this.currentFloor) {
-                moveDelta(Direction.DOWNWARDS, -1);
+            while (nextFloor < getCurrentFloor()) {
+                moveDelta(-1);
             }
         }
-        log.info("Floor [{}] served", this.currentFloor);
-        visitedFloors.add(this.currentFloor);
+        log.info("Floor [{}] served", nextFloor);
+        visitedFloors.add(nextFloor);
     }
 
-    private void moveDelta(Direction direction, int delta) throws InterruptedException {
+    private void moveDelta(int delta) throws InterruptedException {
         Thread.sleep(this.delay);
-        this.direction = direction;
-        this.currentFloor += delta;
-        log.info("The elevator is in floor [{}]", this.currentFloor);
+        this.scheduler.setCurrentFloor(getCurrentFloor() + delta);
+    }
+
+    public int getCurrentFloor() {
+        return this.scheduler.getCurrentFloor();
     }
 
 }
